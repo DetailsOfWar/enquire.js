@@ -28,7 +28,7 @@
     "test": "grunt test",
     "preversion": "npm test",
     "version": "grunt build && git add .",
-    "postversion": "git push origin master --tags && npm publish"
+    "postversion": "git push origin master"
   },
   "devDependencies": {
     "bundle-collapser": "^1.2.1",

@@ -1,12 +1,64 @@
 /*!
  * enquire.js v2.1.6 - Awesome Media Queries in JavaScript
- * Copyright (c) 2017 Nick Williams - http://wicky.nillia.ms/enquire.js
+ * Copyright (c) 2023 Nick Williams - http://wicky.nillia.ms/enquire.js
  * License: MIT */
 
 
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.enquire = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var QueryHandler = require(3);
-var each = require(4).each;
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.enquire = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+/*! matchMedia() polyfill - Test a CSS media type/query in JS. Authors & copyright (c) 2012: Scott Jehl, Paul Irish, Nicholas Zakas, David Knight. MIT license */
+
+window.matchMedia || (window.matchMedia = function() {
+    "use strict";
+
+    // For browsers that support matchMedium api such as IE 9 and webkit
+    var styleMedia = (window.styleMedia || window.media);
+
+    // For those that don't support matchMedium
+    if (!styleMedia) {
+        var style       = document.createElement('style'),
+            script      = document.getElementsByTagName('script')[0],
+            info        = null;
+
+        style.type  = 'text/css';
+        style.id    = 'matchmediajs-test';
+
+        if (!script) {
+          document.head.appendChild(style);
+        } else {
+          script.parentNode.insertBefore(style, script);
+        }
+
+        // 'style.currentStyle' is used by IE <= 8 and 'window.getComputedStyle' for all other browsers
+        info = ('getComputedStyle' in window) && window.getComputedStyle(style, null) || style.currentStyle;
+
+        styleMedia = {
+            matchMedium: function(media) {
+                var text = '@media ' + media + '{ #matchmediajs-test { width: 1px; } }';
+
+                // 'style.styleSheet' is used by IE <= 8 and 'style.textContent' for all other browsers
+                if (style.styleSheet) {
+                    style.styleSheet.cssText = text;
+                } else {
+                    style.textContent = text;
+                }
+
+                // Test if media query is true or false
+                return info.width === '1px';
+            }
+        };
+    }
+
+    return function(media) {
+        return {
+            matches: styleMedia.matchMedium(media || 'all'),
+            media: media || 'all'
+        };
+    };
+}());
+
+},{}],2:[function(require,module,exports){
+var QueryHandler = require(4);
+var each = require(5).each;
 
 /**
  * Represents a single media query, manages it's state and registered handlers for this query
@@ -99,9 +151,9 @@ MediaQuery.prototype = {
 
 module.exports = MediaQuery;
 
-},{"3":3,"4":4}],2:[function(require,module,exports){
-var MediaQuery = require(1);
-var Util = require(4);
+},{"4":4,"5":5}],3:[function(require,module,exports){
+var MediaQuery = require(2);
+var Util = require(5);
 var each = Util.each;
 var isFunction = Util.isFunction;
 var isArray = Util.isArray;
@@ -114,7 +166,9 @@ var isArray = Util.isArray;
  */
 function MediaQueryDispatch () {
     if(!window.matchMedia) {
-        throw new Error('matchMedia not present, legacy browsers require a polyfill');
+        window.matchMedia = require(1);
+        // require('matchmedia-polyfill/matchMedia.addListener');
+        // throw new Error('matchMedia not present, legacy browsers require a polyfill');
     }
 
     this.queries = {};
@@ -186,7 +240,7 @@ MediaQueryDispatch.prototype = {
 
 module.exports = MediaQueryDispatch;
 
-},{"1":1,"4":4}],3:[function(require,module,exports){
+},{"1":1,"2":2,"5":5}],4:[function(require,module,exports){
 /**
  * Delegate to handle a media query being matched and unmatched.
  *
@@ -262,7 +316,7 @@ QueryHandler.prototype = {
 
 module.exports = QueryHandler;
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 /**
  * Helper function for iterating over a collection
  *
@@ -308,9 +362,9 @@ module.exports = {
     each : each
 };
 
-},{}],5:[function(require,module,exports){
-var MediaQueryDispatch = require(2);
+},{}],6:[function(require,module,exports){
+var MediaQueryDispatch = require(3);
 module.exports = new MediaQueryDispatch();
 
-},{"2":2}]},{},[5])(5)
+},{"3":3}]},{},[6])(6)
 });
